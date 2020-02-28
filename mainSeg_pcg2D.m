@@ -11,7 +11,7 @@
 
 
 function mainSeg_pcg2D(population,segmentation_done,only_segmentation,dirimages,stack_format_list,only_thresh, ...
-                       xyscale, zscale, dir_save, flag_seg, mu, lambda, lamin)
+                       xyscale, dir_save, flag_seg, mu, lambda, lamin)
 
 fprintf('----------------------------------------------------------\n');
 fprintf('             Nuclei Segmentation and PcG Detection        \n');
@@ -60,10 +60,6 @@ if ~exist('xyscale','var')
    xyscale = 0.12;
 end
 
-if ~exist('zscale','var')
-   zscale = 0.21;
-end
-
 if ~exist('lambda','var')
    lambda = 0.0001;
 end
@@ -88,15 +84,10 @@ sc = 255.;
 Scale = struct();
 Scale.x = xyscale;
 Scale.y = xyscale;
-Scale.z = zscale;
+Scale.z = 1;
 
 create_image = 1;
 
-if abs(xyscale - zscale) < 10
-    resize_to_cube = 0; % make voxels cubes? (based on xyscale and zscale)
-else
-    resize_to_cube = 1; % make voxels cubes? (based on xyscale and zscale)
-end%if
 clean_debris = 1; debris_size = 650; % if there are spurios pixels in the segmentation
 
 intensityPcG = 0.;
@@ -156,42 +147,26 @@ for idx = 1:size(population,2) %cycle on population
     end
     for stack = 1:size(population(idx).series,2) % cycle on Series
         id_stack  = population(idx).series(stack);
-        id_planes = population(idx).planes(stack);
-        if (id_planes > 100)
-           filenameformat = [stack_format '%03d_z%03d_ch%02d.tif']; % series,plane,channel
-           filenameformatout = [stack_format '%03d_z%03d'];       % series,plane
-        else
-           filenameformat = [stack_format '%03d_z%02d_ch%02d.tif']; % series,plane,channel
-           filenameformatout = [stack_format '%03d_z%02d'];       % series,plane
-        end
+        filenameformat = [stack_format '%03d_z%02d_ch%02d.tif']; % series,plane,channel
+        filenameformatout = [stack_format '%03d_z%02d'];       % series,plane
     
         fprintf('Population -- %s N. of Stacks %d\n', population(idx).name, size(population(idx).series,2));
 
+        % set first and last plane of the stack
+        pf = 0; %2D->first plane is  0
+        pl = 0; %2D->last plane is 0
+
         if (only_thresh == 1)
-            pf = population(idx).threshplanes(stack);
-            pl = pf;
             thresh = -255; % Initial thresh for ISODATA application before PcG filtering
             fprintf(' Evaluating thresh... %d\n',pf);
         else
-            if isfield(population(idx),'first_plane') == 0
-              pf = 0;
-            else
-              pf = population(idx).first_plane(stack);
-              fprintf(' First plane... %d\n',pf);
-            end
-            if isfield(population(idx),'last_plane') == 0
-              pl = id_planes-1;
-            else
-              pl = population(idx).last_plane(stack);
-              fprintf(' Last plane... %d\n',pl);
-            end
             thresh = population(idx).thresh; % Fixed thresh for ISODATA PcG filtering
             if (only_segmentation)
                fprintf(' Applying fixed thresh... \n');
             end
         end
 
-        fprintf(' --> Stack/Series%03d of %d planes \n', id_stack, population(idx).planes(stack));
+        fprintf(' --> Stack/Series%03d of 1 plane \n', id_stack);
 
         dirSeries = strcat('Series', sprintf('%03d',id_stack));
         dirtif =[population(idx).name '/' dirSeries '/tif'];
@@ -218,13 +193,13 @@ for idx = 1:size(population,2) %cycle on population
         % initialize vectors defining nuclei regions and PcG bodies
         height = fieldsize(1); width = fieldsize(2); 
         if (~only_segmentation) %Francesco 20/05/2016
-            ImPcG_vol = zeros(height,width,id_planes);
-            regIm2_vol = false(height,width,id_planes);
+            ImPcG_vol = zeros(height,width,1);
+            regIm2_vol = false(height,width,1);
         end
    
         if (~only_thresh && ~segmentation_done)
            fprintf(fileIDt, 'Series%03d ,', population(idx).series(stack));
-           fprintf(fileIDt, '%d,%3.8f\n', population(idx).threshplanes(stack),population(idx).thresh);
+           fprintf(fileIDt, '%3.8f\n', population(idx).thresh);
         end
         for plane = pf:pl %cycle on planes
 
