@@ -6,7 +6,7 @@ end
 
 
 fprintf('Analyzing ... %s\n', popol);
-for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
+for kount=1:size(popnick_list,2) % cycle on populations
     stack_format = popnick_list{kount}
     dirMinDist = [outpath '/' popol '/' stack_format '_MinDistPNG'];
     mkdir(dirMinDist);
@@ -88,7 +88,7 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
            end%while n
         else
            if iprint
-              fprintf(' Esclusa Serie %d \n',s);
+              fprintf(' Discarded Serie %d \n',s);
            end
         end%if
     end%for s

@@ -1,26 +1,21 @@
 %%% Begin Main Function
 %
-% calling program of Region Segmentation and Isodata
-% immagini sui PcG cell-images
-% le immagini sono a colori 
-% Generalmente il primo campo e' Blu   (ch00/Dapi), 
-%              il secondo     e' Green (ch01/PcG),
-%              il terzo       e' Red   (ch02/Lamin)
+% main program Region Segmentation + Isodata
+% In general, first channel  is Blu   (ch00/Dapi), 
+%             second channel is Green (ch01/PcG),
+%             third channel  is Red   (ch02/Lamin)
 
 %%function InitFunU(img, iNy, iNx);
 
 %%clear all;
 
 
-function mainSeg_pcg2D(population,segmentation_done,only_segmentation,dirimages,stack_format_list,only_thresh,random_case, ...
-                     xyscale,zscale,dirold_population_name,dir_save, flag_seg, mu, lambda, lamin)
+function mainSeg_pcg2D(population,segmentation_done,only_segmentation,dirimages,stack_format_list,only_thresh, ...
+                       xyscale, zscale, dir_save, flag_seg, mu, lambda, lamin)
 
 fprintf('----------------------------------------------------------\n');
 fprintf('             Nuclei Segmentation and PcG Detection        \n');
 fprintf('----------------------------------------------------------\n');
-
-% Flag che indica la presenza della Lamina come terza immagine
-%lamin = 1;
 
 if ~exist('flag_seg','var')
    flag_seg = 0;
@@ -31,7 +26,7 @@ else
       case 6
          fprintf('Segmentation on ImDap_seg = (medfilt2(ImDap) + ImLam)/2\n');
       case 5
-         fprintf('Segmentation on  ImDap_seg = (ImPcG + ImLam)/2\n');
+         fprintf('Segmentation on ImDap_seg = (ImPcG + ImLam)/2\n');
       case 4
          fprintf('Segmentation on ImPcG + abs(medfilt2(ImLam,[4,4])\n');
       case 3
@@ -46,35 +41,23 @@ else
 end
 
 if ~exist('segmentation_done','var')
-segmentation_done = 0;
+   segmentation_done = 0;
 end
 
 if ~exist('only_segmentation','var')
-only_segmentation = 1;
+   only_segmentation = 1;
 end
 
 if ~exist('dir_save','var')
-dir_save = 0; % flag da attivare per salvare i dati di output sotto la stessa dir
-              % della popolazione da esaminare, altrimenti li salva in dirimages
-end
-
-if dir_save
-   if ~exist('dirold_population_name','var')
-       fprintf('dirold_population_name not defined\n');
-       exit;
-   end
+   dir_save = 0; % set to 1 to save output data in the same dir as population data files
 end
 
 if ~exist('only_thresh','var')
-only_thresh = 0;
-end
-
-if ~exist('random_case','var')
-random_case = 0;
+   only_thresh = 0;
 end
 
 if ~exist('xyscale','var')
-xyscale = 0.12; 
+   xyscale = 0.12;
 end
 
 if ~exist('zscale','var')
@@ -90,12 +73,11 @@ if ~exist('mu','var')
 end
 
 if ~exist('population','var')
-% parametri della popolazione
-fprintf('population record not defined\n');
-exit;
+   fprintf('population record not defined\n');
+   exit;
 end
 
-% Interi che indicano il colore nei nomi dei file
+% integers used to indicate channels in file names
 dapiext = 0;
 greenext = 1;
 redext = 2;
@@ -108,9 +90,7 @@ Scale.x = xyscale;
 Scale.y = xyscale;
 Scale.z = zscale;
 
-create_video = 0;
 create_image = 1;
-create_map = 0;
 
 if abs(xyscale - zscale) < 10
     resize_to_cube = 0; % make voxels cubes? (based on xyscale and zscale)
@@ -118,8 +98,6 @@ else
     resize_to_cube = 1; % make voxels cubes? (based on xyscale and zscale)
 end%if
 clean_debris = 1; debris_size = 650; % if there are spurios pixels in the segmentation
-
-old_spherize_labeling = 0;
 
 intensityPcG = 0.;
 intensityPcGGreen = 0.;
@@ -145,7 +123,6 @@ for idx = 1:size(population,2) %cycle on population
         end
     end
     stack_format = stack_format_list{idx};
-    %filenameformatout = '%s%03d_z%03d'; % namestack,stack,plane
 
     fprintf('----------------------------------------------------------\n');
 
@@ -173,13 +150,6 @@ for idx = 1:size(population,2) %cycle on population
        mkdir(dirCSV)
     end
 
-    dirCSV = [population(idx).name '/CSV'];
-    if dir_save 
-       dirCSV = [dirimages dirCSV];
-    end 
-    if ~exist(dirCSV, 'dir')
-       mkdir(dirCSV)
-    end
     if (~only_thresh && ~segmentation_done)
        filenameThresh = [ dirCSV '/ThreshPerSeries_' population(idx).name '.csv'];
        fileIDt = fopen(filenameThresh,'w');
@@ -231,14 +201,6 @@ for idx = 1:size(population,2) %cycle on population
         if ~exist(dirtif, 'dir')
           mkdir(dirtif)
         end
-        % eliminare dirrec3d
-        %dirrec3d =[population(idx).name '/rec3d'];
-        %if dir_save 
-        %   dirrec3d = [dirimages dirrec3d];
-        %end 
-        %if ~exist(dirrec3d, 'dir')
-        %  mkdir(dirrec3d)
-        %end
         dirSTC =[population(idx).name '/STCmat'];
         if dir_save 
            dirSTC = [dirimages dirSTC];
@@ -248,14 +210,12 @@ for idx = 1:size(population,2) %cycle on population
         end
         filenameNofNuclei = [ dirCSV '/NucleiPerSeries_' population(idx).name '.csv'];
 
-        % lettura di una immagine per l'acquisizione delle dimensioni
+        % acquire image dimensions
         DapFilename = sprintf( filenameformat, id_stack, pf, dapiext );
         %dirReadImages = [dirimages population(idx).name '/' dirSeries '/'];
-        %if dir_save
-        dirReadImages = [dirimages dirold_population_name  ];
-        %end
+        dirReadImages = [dirimages];
         fieldsize = size(imread( [dirReadImages DapFilename] ));
-        % inizializzazione dei vettori contenente gli stack
+        % initialize vectors defining nuclei regions and PcG bodies
         height = fieldsize(1); width = fieldsize(2); 
         if (~only_segmentation) %Francesco 20/05/2016
             ImPcG_vol = zeros(height,width,id_planes);
@@ -344,19 +304,19 @@ for idx = 1:size(population,2) %cycle on population
                 % initialization of minimizer
                 pfu0 = InitFunU(ImDap, Ny, Nx);
     
-                % preprocessing of dapi frame by means of mean filter 
+                % preprocessing of dapi image by means of mean filter 
                 if ( T0 > 0 )
                    w1 = fspecial('average', [T0,T0]);
                    ImDap = imfilter(ImDap,w1); 
                 end
     
-                % preprocessing of c01 frame by means of mean filter 
+                % preprocessing of c01 image by means of mean filter 
                 if ( T1 > 0 )
                    w1 = fspecial('average', [T1,T1]);
                    ImPcG = imfilter(ImPcG,w1); 
                 end
     
-                % preprocessing of c02 frame by means of mean filter 
+                % preprocessing of c02 image by means of mean filter 
                 if ( T2 > 0 )
                    w1 = fspecial('average', [T2,T2]);
                    ImLam = imfilter(ImLam,w1); 
@@ -388,27 +348,25 @@ for idx = 1:size(population,2) %cycle on population
                       ImDap_seg = ImDap;
                 end
 
+                % ac_mex output list:
+                % regIm highlights foreground objects
+                % cntIm shows object contours
+                % pfu is the segmented image
+                % fMeanIn is the mean fluorescence intensity value of objects
+                % fMeanOut is the mean fluorescence intensity value of background
+                % den1 is the number of object pixels
+                % den2 is the number of background pixels
                 [regIm, cntIm, pfu, fMeanIn, fMeanOut, den1, den2] = ac_mex(ImDap_seg, ImPcG, ImLam, pfu0, double(SegParameters)); 
     
-                % if den1 < den2 
-                % den1 == pixels of nuclear regions 
-                % den2 == pixels of background 
-                % else the opposite case
-    
-                if (den1(1) > den2(1) ) % eliminare ... ?
-                   flag_bckg_color = 1;
-                else
-                   flag_bckg_color = 0;
-                end
-        
                 %figure
-                %imagesc(regIm);colormap(gray);title('before Filling Nuclei');
-                % filling holes in dapi regions of segmented image 
+                %imagesc(regIm);colormap(gray);title('before Fill Holes in Nuclei');
+		% invert colors in regIm
                 regIm2 = 255 - regIm; % regIm2 has black background and white nuclei regions - regIm is the opposite
+                % fill holes in dapi regions of segmented image 
                 regIm2 = imfill(regIm2,'holes');
                 
                 %figure
-                %imagesc(regIm2);colormap(gray);title('Filling Nuclei');
+                %imagesc(regIm2);colormap(gray);title('Fill Holes In Nucleus Regions');
                 %pause
     
                 % names of output image files: segmented regions and contours
@@ -416,7 +374,7 @@ for idx = 1:size(population,2) %cycle on population
                 nameReg  = ['rgn_' tempName '.tif'];
                 nameCnt  = ['cnt_' tempName '.tif'];
     
-                % saving segmented image in tiff and pgm format
+                % saving segmented image in tiff format
                 imwrite((255-regIm2),nameReg,'tiff'); 
                 movefile(nameReg,dirtif)
     
@@ -434,7 +392,7 @@ for idx = 1:size(population,2) %cycle on population
                 imwrite(m8,nameCnt,'tiff');
                 movefile(nameCnt,dirtif)
     
-                % Filtering PcG frames in order to apply ISODATA
+                % Filtering PcG image in order to better enhance PcG areas (before applying ISODATA)
                 if ( I > 0 )
                    h = 2*I+1;
                    fprintf('     Applying Mean Filter (size %d) for IsoData \n',h);
@@ -535,9 +493,8 @@ for idx = 1:size(population,2) %cycle on population
                 regIm2_vol(:,:,p3d) = regIm;
                 regIm2_vol(:,1,p3d) = regIm2_vol(:,2,p3d); regIm2_vol(:,end,p3d) = regIm2_vol(:,end-1,p3d); % adjust borders
                 regIm2_vol(1,:,p3d) = regIm2_vol(2,:,p3d); regIm2_vol(end,:,p3d) = regIm2_vol(end-1,:,p3d); % adjust borders
-                % eliminazione dei nuclei attaccati al bordo dell'immgine
+                % remove nucleus regions conncted to image borders
                 regIm2_vol(:,:,p3d) = imclearborder(regIm2_vol(:,:,p3d),8);
-                %%regIm2_vol(:,:,p3d) = imfill(regIm2_vol(:,:,p3d),'holes'); inutile
     
                 ImDap_vol(:,:,p3d) = ImDap; % volume della fluorescenza ch00
                 ImPcG_vol(:,:,p3d) = ImPcG; % volume della fluorescenza ch01
@@ -557,7 +514,7 @@ for idx = 1:size(population,2) %cycle on population
         
 
         if(~only_segmentation)
-            fieldsize = size(regIm2_vol); % 2 dimensioni
+            fieldsize = size(regIm2_vol); % 2 dimensions
 
             LumPcG = struct;
             LumDap = struct;
@@ -581,173 +538,109 @@ for idx = 1:size(population,2) %cycle on population
               LumLam.Contrast(1,l) = sum( sum( ( ImLam_vol(:,:,l)-LumLam.Mean(l) ).^2,1 ),2 ) ./ (fieldsize(1)*fieldsize(2));
             end%for l
        
+            % remove small objects from nuclei image
             if clean_debris
               regIm2_vol = bwareaopen(regIm2_vol, debris_size, 6);
             end%if
   
-            % inizializzazione di PSI contenente i dati binari delle segmentazioni
-            % PSI avra'  0 per background 1 per le regioni nucleari
-            fprintf('Defining PSI for stack %s\n',dirSeries);
+            fprintf('Defining Nuclei image for stack %s\n',dirSeries);
+	    % convert nuclei image in binary form
             PSI = boolean(regIm2_vol);
             
-            % SHED - START
-    
-            % definizione di kat=bwconncomp(PSI), di default 8-connesse
-            % kat e' una struttura generata da bwconncomp contenente le componenti connesse di
-            % PSI (8-connessi). kat ha 4 campi: 
-            % Connectivity:  connetivita'  utilizzata per individuare le componenti connesse (oggetti/nuclei) 
-            % ImageSize:     dimensioni di PSI
-            % NumObjects:    Numero di componenti connesse (oggetti/nuclei) di PSI
-            % PixelIdxList:  1-X-NumObjects cell array di double, dove il k-esimo array e' un vettore 
-            %                contenente gli indici lineari (per colonna) del k-esimo oggetto individuato.
-            %                size(kat.PixelIdxList{k},1) fornisce il numero di elementi del k-esimo oggetto
-    
-            le_dim = [];
-            % definizione delle componenti connesse di PSI (procedendo per colonne. 
-            % kat contiene la multisuperificie di tutti i nuclei
-            kat = bwconncomp(PSI);
-            L_PSI = labelmatrix(kat);
-            % le_dim e' il vettore contenente la 'dimensione' di ciascun oggetto (nucleo) individuato
-            for k = 1:kat.NumObjects
-              le_dim(end+1) = size(kat.PixelIdxList{k},1);
-            end%fo%r
-            %le_dim
+	    % reconstructions of nuclei 
+            nuclei_CC = bwconncomp(PSI);
 
-            % media delle dimensioni di tutti gli oggetti individuati
-            mean_dim = mean(le_dim);
-    
-            % scarto degli oggetti con dimensione inferiore ad un decimo di quella media 
-            maxima_pos = [];
-            for k = 1:kat.NumObjects
-              %se troppo piccolo fai qualcosa (?? laura)
-              % calcolo di maxima_pos contenente l'indice di ''posizione media'' degli oggetti individuati
-              [x,y] = ind2sub(size(PSI),kat.PixelIdxList{k});
-              %z_dim(end+1) = max(z)-min(z);
-    
-              if size(kat.PixelIdxList{k},1) > .1*mean_dim
-                %%maxima_pos(end+1) = kat.PixelIdxList{k}(  round( size(kat.PixelIdxList{k},1)/2 )  );
-                %% [x,y,z] = ind2sub(size(PSI),kat.PixelIdxList{k});
-                maxima_pos(end+1,:) = [mean(x),mean(y)];
-              end%if
-            end%for k
-            %idx_PSI = find(le_dim > .1*mean_dim & z_dim > 1);
-            idx_PSI = find(le_dim > .1*mean_dim);
-            clear le_dim mean_dim;
-    
-            mask_PSI = ismember(L_PSI, idx_PSI);
-            L_PSI(mask_PSI == 0) = 0;
+	    % label nuclei
+            nuclei_L = labelmatrix(nuclei_CC);
+
+	    % compute area for each nucleus object
+            nuclei_dim = [];
+            for k = 1:nuclei_CC.NumObjects
+              nuclei_dim(end+1) = size(nuclei_CC.PixelIdxList{k},1);
+            end%fo%r
+            %nuclei_dim
+
+            % exclude too small nucleus objects
+            mean_dim = mean(nuclei_dim);
+            idx_PSI = find(nuclei_dim > .1*mean_dim);
+            clear nuclei_dim mean_dim;
+            mask_PSI = ismember(nuclei_L, idx_PSI);
+            nuclei_L(mask_PSI == 0) = 0;
     
             %% Number of cells (nuclei)
             M = size(idx_PSI,2);
             disp(['Identifying cells: ' int2str(M) ' cells found']);
 
-            % determina gli array a1, b1 e c1 contenenti gli indici (i,j,z) (voxel) 
-            % a partire dalla matrice
-            % degli indici lineari della posizione media dei nuclei, maxima_pos, 
-            % ridefinisce maxima_pos di dimensione M X 3 (coordinate del voxel
-            % in posizione media nello stack widthXheightXslices di ciascuno degli M nuclei)
-            %%[a1,b1,c1]=ind2sub(fieldsize,maxima_pos);
-            %%clear maxima_pos
-            %%maxima_pos(:,1) = a1; maxima_pos(:,2) = b1; maxima_pos(:,3) = c1;
-            %%clear a1 b1 c1
-    
-            c_iso_value = 1.5 * double(mean(PSI(:)) + min(PSI(:)));
-            segm_surfaces_transparency = .5;
-            % SHED - END
             % .........................................................................
     
-            % memorizza ogni singolo nucleo k=1,...,M in PSI_new(:,:,:,k) individuato dall'etichetta L/L_PSI
-            % PSI_new(:,:,:,k) ha dimensione fieldsize
+            % PSI2(:,:,:,k), with k from 1 to M, is the nucleus
+            % corresponding to the k-th label
             PSI_new = false([fieldsize,M]);
     
             for k=1:M
-               %PSI_new(:,:,:,k) = (L_PSI==idx_PSI(k)); %eliminare
-                PSI_new(:,:,k) = (L_PSI==idx_PSI(k));
+                PSI_new(:,:,k) = (nuclei_L==idx_PSI(k));
             end
     
             PSI = boolean(PSI_new);
-            clear PSI_new regIm2_vol L L_PSI idx_PSI;
+            clear PSI_new regIm2_vol L nuclei_L idx_PSI;
     
             fieldsize = size(PSI);
             disp('Extracting Nuclei...');
      
-            % inizializzazione di NCL
+            % NCL holds pixel data regarding each nucleus
             NCL = cell(0);
     
-            %if size(fieldsize,2)<4
-            %    made = 1;
-            %else
-            %    made = fieldsize(4);
-            %end%if
             made = fieldsize(3);
-    
-            fprintf('made %d\n',made);
-            % ciclo sui nuclei individuati
+            fprintf('M= %d\n',made);
+
+            % cycle on nuclei
             for n=1:made
                 [i] = find(PSI(:,:,n));
                 [x,y] = ind2sub(fieldsize(1:2),i);
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% planes cut
-                %for plane = pf:pl %cycle on planes
-                %    plane 
-                %    regImNucleus = PSI( min(x):max(x), min(y):max(y), plane, n );
-                %    [LregImNucleus, nCCregImNucleus] = bwlabel(regImNucleus);
-                %    if ( nCCregImNucleus == 1 )
-                %      regImNucluesstats = regionprops(LregImNucleus, 'Area');
-                %      currentArea(plane) = regImNucluesstats(1).Area;
-                %      fprintf('nucleo %d current plane %d currentArea %d \n',n, plane, currentArea(plane));
-                %    else
-                %      fprintf('nucleo %d nCCregImNucleus %d \n',n, nCCregImNucleus);
-                %      %cut_can_be_performed = 0; 
-                %      currentArea(plane) = 0.;
-                %    end
-                %end
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% planes cut
                 NCL{n} = struct;
-                % definzione dell'ennesimo nucleo
+                % n-th nucleus
                 NCL{n}.Nucleus = PSI( min(x):max(x), min(y):max(y), n );
                 NCL{n}.PcG = ImSegPcG_vol( min(x):max(x), min(y):max(y) ).*NCL{n}.Nucleus;
-                % rimuove tra gli spot tutti gli oggetti piu' piccoli di 17 pixel con connettivita' < 6
-                %NCL{n}.PcG = bwareaopen(NCL{n}.PcG,17,6); % 6, 18, 26
-                NCL{n}.PcG = bwareaopen(NCL{n}.PcG,3,8); % 6, 18, 26
-                % Pulire i nuclei (lascia solo l'oggetto maggiore ed i relativi spot)
-                % qui avviene la separazione dei nuclei 
+		% discard too small detected PcG objects which are probably just noise.
+                NCL{n}.PcG = bwareaopen(NCL{n}.PcG,3,8);
+
+                % if there is more than one nucleus object remove all but the biggest
                 temp = bwconncomp(NCL{n}.Nucleus,6); % 6, 18, 26
                 if temp.NumObjects>1
                     thamax = 0; thamaxk = 0;
-                    % tra i nuclei individuati estrae la dimensione del piu' grande, thamax ed
-                    % il suo indice, thamaxk, tra gli M individuati
+
                     for k=1:temp.NumObjects
                         if thamax<size(temp.PixelIdxList{k},1)
                             thamax = size(temp.PixelIdxList{k});
                             thamaxk = k;
                         end%if
                     end%for k
-                    % annullamento delle componenti spurie dovute alla separazione dei nuclei
+
                     for k=1:temp.NumObjects
                         if k~=thamaxk
                             NCL{n}.Nucleus(temp.PixelIdxList{k}) = 0;
                         end%if
                     end%for k
+
                     NCL{n}.PcG = NCL{n}.PcG.*NCL{n}.Nucleus; % remove spot outside of remaining obj
                 end%if
-                % Rimane sempre un quadratino di 16 pixel nelle slice vuote, non so 
-                % perche'. Questo pezzo lo rimuove
-                if ~isempty(NCL{n}.Nucleus)
-                    void = zeros(size(NCL{n}.Nucleus(:,:,1)));
-                    for q=1:size(NCL{n}.Nucleus,3)
-                        if  sum(sum(NCL{n}.Nucleus(:,:,q)))<=16
-                             NCL{n}.Nucleus(:,:,q) = void;
-                        end%if
-                    end%for q
-                    clear void;
-                end%if isempty
 
-                % calcolo dell'eccentricità dei nuclei
+                %if ~isempty(NCL{n}.Nucleus)
+                %    void = zeros(size(NCL{n}.Nucleus(:,:,1)));
+                %    for q=1:size(NCL{n}.Nucleus,3)
+                %        if  sum(sum(NCL{n}.Nucleus(:,:,q)))<=16
+                %             NCL{n}.Nucleus(:,:,q) = void;
+                %        end%if
+                %    end%for q
+                %    clear void;
+                %end%if isempty
+
+                % compute eccentricity of nucleus NCL{n} to provide an estimate of its "roundness"
                 regIm2 = PSI(:,:,n);
                 [LregIm2, nCCregIm2] = bwlabel(regIm2);
                 regIm2stats = regionprops(LregIm2, 'Area', 'Perimeter', 'PixelList');
  
-                fprintf('nucleo %d nCCregIm2 %d \n',n, nCCregIm2);
+                %fprintf('Nucleus %d nCCregIm2 %d \n',n, nCCregIm2);
 
                 MIN_AREA = 50;
                 MIN_CIRCLE_METRIC = 0.75; %0.75
@@ -764,22 +657,20 @@ for idx = 1:size(population,2) %cycle on population
                     if(regIm2stats(1).Area >= MIN_AREA)
                         metric = (4*pi*regIm2stats(1).Area)/(regIm2stats(1).Perimeter^2);
                         NCL{n}.eccentricity = metric; % 0 is circle 1 is parabola
-                      %figure, imshow(regIm2_grouped{index_regIm2_grouped});
                     end
                 else
                     NCL{n}.eccentricity = 10.; %
                 end
-                fprintf('nucleo %d area %f perimeter %f metric %f \n',n, ...
+                fprintf('Nucleus %d area %f perimeter %f metric %f \n',n, ...
                          regIm2stats(i).Area, regIm2stats(i).Perimeter, NCL{n}.eccentricity);
             end%for n
 
-            if create_image | create_map % Tutti i nuclei numerati
+            if create_image
 
                 %fig_numbers = figure('Visible', 'off'); imshow(mat2gray(ImDap_vol(:,:,1)));
                 fig_numbers = figure('Visible', 'off'); imshow(mat2gray(ImPcG_vol(:,:,1)));
                 set(fig_numbers,'Paperposition',[0,0,4,4]);
                 %set(fig_numbers, 'Position', [0 0 4 4]);
-                %sum(sum(PSI))
                 for h=1:size(NCL,2)
                     [ti,tj] = find(PSI(:,:,h),h);
                     if (size(ti,1) == 0) || (size(tj,1) == 0)
@@ -792,8 +683,6 @@ for idx = 1:size(population,2) %cycle on population
                     end
                     text(tj(floor(size(tj,1))),ti(floor(size(ti,1))),int2str(h),'FontWeight','bold','Color','g','FontSize',13);
                 end%for
-                %filenameformatnumbers = '%s%03d'; % namestack,stack
-                %tempName = sprintf( filenameformatnumbers, id_stack )
                 filenameformatnumbers = strcat(stack_format, sprintf('%03d',id_stack));
                 print(fig_numbers, '-dpng', '-r200', [ dirSeparatedNuclei '/' filenameformatnumbers '_numbers.png']);
                 clear ti tj;
@@ -803,13 +692,11 @@ for idx = 1:size(population,2) %cycle on population
             clear temp thamax thamaxk PSI ImPcG_vol ImPcG_vol ImLam_vol ImDap_vol;
 
             C = cell(0); PcG = cell(0);
-            face_col = [200,100,0]./255;
-            face_alp = .2;
 
             fileID = fopen(filenameNofNuclei,'a');
             fprintf(fileID, 'Series%03d,', id_stack);
             for n=1:size(NCL,2)
-                fprintf('Real Case: 2d reconstruction Nucleus...  %d\n',n);
+                fprintf('2d reconstruction Nucleus...  %d\n',n);
                 fig1 = figure(1); set(fig1, 'Visible', 'on'); clf(1);
                 %set(fig1,'Position', [0 0 4 4]);
                 set(fig1,'Paperposition',[0,0,4,4]);
@@ -818,7 +705,6 @@ for idx = 1:size(population,2) %cycle on population
                 [Cx,Cy] = ind2sub(size(NCL{n}.Nucleus),find(NCL{n}.Nucleus));
                 C{n} = [mean(Cx),mean(Cy)];
                 NCL{n}.NuclCentr = C{n};
-                %plot3(C{n}(1),C{n}(2),C{n}(3),'go','MarkerSize',2,'LineWidth',2);
                 % PLOT PROTEINS
                 PcG{n} = bwconncomp(NCL{n}.PcG,6);
                 %PcG{n} = bwconncomp(NCL{n}.PcG,4);
@@ -835,54 +721,14 @@ for idx = 1:size(population,2) %cycle on population
                         PcG{n}.PixelSubList{k} = [x,y];
                         PcG{n}.Centroid{k} = [mean(x),mean(y)];
                         PcG{n}.CentDist{k} = sqrt(sum((C{n} - PcG{n}.Centroid{k}).^2));
-                        %PATCH_3Darray(protemp,karaa(1,k,:));
                         proimage = proimage + protemp.*255;
                     end%for k
-                    % PLOT LINES
-                    %for k=1:PcG{n}.NumObjects
-                    %    line([C{n}(1),PcG{n}.Centroid{k}(1)], ...
-                    %    [C{n}(2),PcG{n}.Centroid{k}(2)], ...
-                    %    'Color',karaa(1,k,:)/2);
-                    %end%for k
                     imtemp = uint8(mat2gray(proimage).*255);
                 else 
                     imtemp = uint8(mat2gray(proimage).*100);
                 end%if PcG{n}.NumObjects
                 imwrite(imtemp, [dirSeparatedNuclei '/' filenameformatnumbers,  '_' int2str(n) '.png']);
                 
-                % PLOT MEMBRANE
-                %N = regionprops(NCL{n}{1},'Area','MajorAxisLength','MinorAxisLength');
-                %p = patch(isosurface(permute(NCL{n}.Nucleus,[2,1,3]),.5,'noshare'));
-                % size(NCL{n}.Nucleus,3) 
-                %Nucleus_verts = isosurface(permute(NCL{n}.Nucleus,[2,1,3]),.5,'noshare');
-                %p = patch(Nucleus_verts);
-                %set(p,'FaceColor',face_col,'EdgeColor','none','FaceAlpha',face_alp);
-                %patch(isocaps(permute(NCL{n}.Nucleus,[2,1,3])),...
-                %'FaceColor',face_col,'EdgeColor','none','FaceAlpha',face_alp);
-                %set(gca,'projection','perspective');
-                %set(gca,'NextPlot','replaceChildren');
-                %daspect([1/xyscale 1/xyscale 1/zscale]), view(3); box('on');
-                %lightangle(75,45), %lighting('phong');
-                %axis('tight'); axis('vis3d'); grid('on');
-                %clear k p protemp x y z;
-                %clear h a e az el;
-                
-                %if create_image % create image
-                    %tempName = sprintf( filenameformatnumbers, id_stack );
-                    %set(gcf,'PaperSize',[7 7]);
-                    %set(gcf,'PaperUnits','inches');
-                    %set(gcf,'Paperposition',[0,0,4,4]);
-                    %print(gcf, '-dpng', '-r100', [dirrec3d '/' filenameformatnumbers, '_' int2str(n) '_3dview.png']); %prova
-                    %print(gcf, '-dpng', '-r200', ['results' regexprep(stackfilez{stackfile},'/','_') '_' int2str(n) '_3dview.png']); %prova
-                    %saveas(gcf, [dirresults '/' tempName '_' int2str(n) '_3dview.png']);
-                    %view(-37.5,15);
-                    %print(gcf, '-dpng', '-r200', ['results/' regexprep(stackfilez{stackfile},'/','_') '_' int2str(n) '_side.png']);
-                    %view(90,90);
-                    %saveas(gcf, [dirresults '/' tempName  '_' int2str(n) '_top.png']);
-                    %print(gcf, '-dpng', '-r200', ['results/' regexprep(stackfilez{stackfile},'/','_') '_' int2str(n) '_top.png']);
-                    %print(gcf, '-dpng', '-r100', [dirrec3d '/' filenameformatnumbers,  '_' int2str(n) '_top.png']);
-                    %close(fig1);
-                %end%if create image
                 fprintf(fileID, '%d,', n);
             end%for n
 

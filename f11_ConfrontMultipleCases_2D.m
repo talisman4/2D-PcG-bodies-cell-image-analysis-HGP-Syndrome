@@ -4,7 +4,7 @@ if ~exist(outpath, 'dir')
     mkdir(outpath)
 end
 
-% path dove salvare la heatmap
+% path where to save heatmaps
 dirgraphs = [outpath '/grafici'];
 if ~exist(dirgraphs, 'dir')
     mkdir(dirgraphs)
@@ -17,7 +17,7 @@ end
 
 set(0,'DefaultFigureWindowStyle','docked');
 
-% laura: da inserire negli argomenti
+% laura: add as arguments
 minPcGxNucleus = 0;
 maxPcGxNucleus = intmax;
 
@@ -35,7 +35,7 @@ PcGNumber_realdata = cell(0);
 PcGAreas_realdata = cell(0);
 NucleiAreas_realdata = cell(0);
 NucleiCircularity_realdata = cell(0);
-% NUMERO DI POLYCOMB PER NUCLEO
+% NUMBER OF POLYCOMBS PER NUCLEUS
 Number_per_nucleus = [];
 Group_per_nucleus = [];
 
@@ -55,15 +55,10 @@ psize = 4;
 w = 'A':'Z';
 
 %title correction
-for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
+for kount=1:size(popnick_list,2) % cycle on population
    legendas2{kount} = strrep(legendas{kount},'_','\_');
 end
 fprintf('Analyzing dataset... %s n. of popol %d\n', popol,size(popnick_list,2));
-%filename = ['PcGAreas' '.csv'];
-%filenameNofPcG = ['NofPcGxNuclei.csv'];
-%filenameNucleiAreas = ['NucleiAreas.csv'];
-%filenamePcGAreas = ['PcGAreas.csv'];
-%filenameCircularity = ['NucleiCircularity.csv'];
 for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
     filenameNofPcG = ['NofPcGxNuclei_' popnick_list{kount} '.csv'];
     filenameNucleiAreas = ['NucleiAreas_' popnick_list{kount} '.csv'];
@@ -80,7 +75,7 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
     outCell = outCellTot{kount};
     %if kount ~= 4 (???)
 
-    % NUMERO DI POLYCOMB PER NUCLEO
+    % NUMBER OF POLYCOMBS PER NUCLEUS
     if iprint
        fprintf('--> Number of PcG\n');
        fprintf(' -- %s N. of Series %d\n',popnick_list{kount}, size(FirstSTC,2));
@@ -94,14 +89,12 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
         end
         pOutNCL = 1;
         if outCell(s,1) ~= -1
-           %for n=1:size(FirstSTC(s).NCL,2)
            voxelvol = FirstSTC(s).Scale.x * FirstSTC(s).Scale.y * FirstSTC(s).Scale.z;
            n = 1;
            while n <= size(FirstSTC(s).NCL,2)
                if n ~= outCell(s,pOutNCL) 
                   PcGNum = FirstSTC(s).PcG{n}.NumObjects;
-                  % sezione da aggiungere se si vogliono discriminare i PcG con
-                  % un certo volume
+                  % code part to discriminate PcG with a certain area
                   %for p=1:FirstSTC(s).PcG{n}.NumObjects
                   %    parea = size(FirstSTC(s).PcG{n}.PixelIdxList{p},1)*voxelvol;
                   %    if parea > 0.2
@@ -123,7 +116,7 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
            end%for n
         else
            if iprint
-              fprintf(' Esclusa Serie %d \n',s);
+              fprintf(' Discarded Serie %d \n',s);
            end
         end%if
     end%while s
@@ -154,7 +147,6 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
         end
         if outCell(s,1) ~= -1
            voxelvol = FirstSTC(s).Scale.x * FirstSTC(s).Scale.y * FirstSTC(s).Scale.z;
-           %for n=1:size(FirstSTC(s).NCL,2)
            n = 1;
            while n <= size(FirstSTC(s).NCL,2)
 %%%%%%%%%%%%
@@ -173,7 +165,7 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
                     end%for
                 end%if
             else
-                %fprintf(' Serie %d indice out %d nucleo n. %d \n', s, pOutNCL, outCell(s,pOutNCL));
+                %fprintf(' Serie %d index out %d nucleus n. %d \n', s, pOutNCL, outCell(s,pOutNCL));
                 pOutNCL = pOutNCL + 1;
             end%if
 %%%%%%%%%%%
@@ -181,7 +173,7 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
            end%for n
         else
            if iprint
-              fprintf(' Esclusa Serie %d \n',s);
+              fprintf(' Discarded Serie %d \n',s);
            end
         end%if
     end%while s
@@ -224,9 +216,8 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
                    end%if
 
                    % Nucleus Analisys: Area, Area
-                   % Calcolo dell'area e del perimetro di ciascun nucleo
-                   %[bwl_NCL nCC_NCL] = bwconncomp(NCL{n}.Nucleus); % nCC_NCL dovrebbe essere 1...
-                   CC_NCL  = bwconncomp(FirstSTC(s).NCL{n}.Nucleus); % nCC_NCL dovrebbe essere 1...
+                   %[bwl_NCL nCC_NCL] = bwconncomp(NCL{n}.Nucleus); % nCC_NCL should be 1...
+                   CC_NCL  = bwconncomp(FirstSTC(s).NCL{n}.Nucleus); % nCC_NCL should be 1...
                    nCC_NCL = CC_NCL.NumObjects;
 
                    if ( nCC_NCL == 1 ) % nucleo intero
@@ -248,7 +239,7 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
            end%for n
         else
            if iprint
-              fprintf(' Esclusa Serie %d \n',s);
+              fprintf(' Discarded Serie %d \n',s);
            end
         end%if
     end%while s
@@ -284,9 +275,8 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
 %%%%%%%%%%%
              if  n ~= outCell(s,pOutNCL)
                    % Nucleus Analisys: Area, Area
-                   % Calcolo dell'area e del perimetro di ciascun nucleo
-                   %[bwl_NCL nCC_NCL] = bwconncomp(NCL{n}.Nucleus); % nCC_NCL dovrebbe essere 1...
-                   CC_NCL  = bwconncomp(FirstSTC(s).NCL{n}.Nucleus); % nCC_NCL dovrebbe essere 1...
+                   %[bwl_NCL nCC_NCL] = bwconncomp(NCL{n}.Nucleus); % nCC_NCL should be 1...
+                   CC_NCL  = bwconncomp(FirstSTC(s).NCL{n}.Nucleus); % nCC_NCL should be 1...
                    nCC_NCL = CC_NCL.NumObjects;
 
                    if ( nCC_NCL == 1 ) % nucleo intero
@@ -304,7 +294,7 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
            end%for n
         else
            if iprint
-              fprintf(' Esclusa Serie %d \n',s);
+              fprintf(' Discarded Serie %d \n',s);
            end
         end%if
     end%while s
