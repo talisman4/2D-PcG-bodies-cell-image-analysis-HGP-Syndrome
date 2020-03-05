@@ -1,6 +1,19 @@
 %%% Begin Main Function
+% This Matlab function is part of the code package released for the
+% article: 
 %
-% main program Region Segmentation + Isodata
+% "A new high-throughput sequencing-based technology reveals early
+% deregulation of bivalent genes in Hutchinson-Gilford Progeria Syndrome"
+% E. Sebestyén1, F. Marullo, F. Lucini, A. Bianchi, C. Petrini, S.  Valsoni,
+% I. Olivieri, L. Antonelli, F. Gregoretti, G. Oliva, F. Ferrari
+%
+% We kindly request you to acknowledge the authors properly 
+% (citation or request for permission from the authors) when using this
+% function.
+% 
+% 2019 (C) L. Antonelli, F. Gregoretti, G. Oliva
+%
+% main program Nuclei Region Segmentation + PcG detection through Isodata thresholding operation
 % In general, first channel  is Blu   (ch00/Dapi), 
 %             second channel is Green (ch01/PcG),
 %             third channel  is Red   (ch02/Lamin)
@@ -10,8 +23,29 @@
 %%clear all;
 
 
-function mainSeg_pcg2D(population,segmentation_done,only_segmentation,dirimages,stack_format_list,only_thresh, ...
-                       xyscale, dir_save, flag_seg, mu, lambda, lamin)
+function mainSeg_pcg2D(population,segmentation_done,only_segmentation,dirimages,stack_format_list,print_thresh, ...
+                       xyscale, dir_save, flag_seg, mu, lambda)
+% population data input structure: for each population(i), required fields are:
+% .name population string name used for the data output directory
+% .series vector of string numbers, each corresponding to a serie's number of input images
+% .aplane vector of string numbers, each corresponding to a plane of the serie's stack to be analyzed
+% .channels number of the channels of each image (at least 2: dapi and pcg)
+% .thresh -255 the threshold used for the thresholding operation has to be computed by ISODATA,
+%         otherwise uses a fixed threshold
+% segmentation_done if 1 segmentation already performed
+% only_segmentation if 1 performs only segmentation
+% dirimages relative path where input images are stored
+% stack_format_list stack_format_list{i} is the reference string name of the population i
+% where names for corresponding images have to be of the format stack_format_list{i}%03d_z%02d_ch%02d.tif
+% (%03d=serie's number, %02d=image plane number, %02d=channel number)
+% print_thresh if 1 prints the threshold given in input
+% xyscale scale x-axis valus (=scale y-axis value)
+% can be retrived from Voxel parameter value of DimensionDescription label (for DimID=X or DimID=Y) in the xml image metadata file
+% dir_save if 1 store output data in the same dir as population data files
+% flag_seg nuclei segmentation strategy
+% mu curvature weight for active contour function
+% lambda regions weight for active contour function
+
 
 fprintf('----------------------------------------------------------\n');
 fprintf('             Nuclei Segmentation and PcG Detection        \n');
@@ -45,15 +79,15 @@ if ~exist('segmentation_done','var')
 end
 
 if ~exist('only_segmentation','var')
-   only_segmentation = 1;
+   only_segmentation = 0;
 end
 
 if ~exist('dir_save','var')
    dir_save = 0; % set to 1 to save output data in the same dir as population data files
 end
 
-if ~exist('only_thresh','var')
-   only_thresh = 0;
+if ~exist('print_thresh','var')
+   print_thresh = 0;
 end
 
 if ~exist('xyscale','var')
@@ -96,8 +130,6 @@ intensityNCL = 0.;
 intensityNCLGreen = 0.;
 medintensityPcG = 0.;
 medintensityPcGGreen = 0.;
-intensityNCL = 0.;
-intensityNCLGreen = 0.;
 medintensityNCL = 0.;
 medintensityNCLGreen = 0.;
 
@@ -141,7 +173,7 @@ for idx = 1:size(population,2) %cycle on population
        mkdir(dirCSV)
     end
 
-    if (~only_thresh && ~segmentation_done)
+    if (print_thresh)
        filenameThresh = [ dirCSV '/ThreshPerSeries_' population(idx).name '.csv'];
        fileIDt = fopen(filenameThresh,'w');
     end
@@ -153,18 +185,10 @@ for idx = 1:size(population,2) %cycle on population
         fprintf('Population -- %s N. of Stacks %d\n', population(idx).name, size(population(idx).series,2));
 
         % set first and last plane of the stack
-        pf = 0; %2D->first plane is  0
-        pl = 0; %2D->last plane is 0
-
-        if (only_thresh == 1)
-            thresh = -255; % Initial thresh for ISODATA application before PcG filtering
-            fprintf(' Evaluating thresh... %d\n',pf);
-        else
-            thresh = population(idx).thresh; % Fixed thresh for ISODATA PcG filtering
-            if (only_segmentation)
-               fprintf(' Applying fixed thresh... \n');
-            end
-        end
+	pf = population(idx).aplane(stack);
+        pl = pf; %2D->last plane is pf
+	% retrieve thresh
+	thresh = population(idx).thresh;
 
         fprintf(' --> Stack/Series%03d of 1 plane \n', id_stack);
 
@@ -197,9 +221,11 @@ for idx = 1:size(population,2) %cycle on population
             regIm2_vol = false(height,width,1);
         end
    
-        if (~only_thresh && ~segmentation_done)
+        if (print_thresh)
            fprintf(fileIDt, 'Series%03d ,', population(idx).series(stack));
-           fprintf(fileIDt, '%3.8f\n', population(idx).thresh);
+	   if (thresh ~= -255)
+               fprintf(fileIDt, '%3.8f\n', population(idx).thresh);
+	   end
         end
         for plane = pf:pl %cycle on planes
 
@@ -249,8 +275,8 @@ for idx = 1:size(population,2) %cycle on population
             %figure
             %imagesc(ImPcG);colormap(gray);title('PcG Image');
 
-            % reading red Lamin) image
-            if lamin
+            % reading red (Lamin) image
+            if population(idx).channels==3
                LamFilename = sprintf( filenameformat, id_stack, plane, redext );
                ImTemp = imread([dirReadImages LamFilename]);
                if size(ImTemp,3) == 3
@@ -391,7 +417,9 @@ for idx = 1:size(population,2) %cycle on population
                    %fprintf('Initial thresh value == > %f\n',fMeanIn(2));
                    thresh = IsoDataThresh(imPrimePcG, Ny, Nx, fMeanIn, fMeanOut, thresh );
                    fprintf('     Thresh evaluated for PcG Image ==> %f\n',thresh);
+                   fprintf(fileIDt, '%3.8f\n', thresh);
                 else
+		   thresh = population(idx).thresh; % Fixed thresh for ISODATA PcG filtering
                    fprintf('     Applying Fixed thresh on PcG Image == > %f\n',thresh);
                 end%if thresh
                 regIm = zeros(size(regIm2));
@@ -471,9 +499,9 @@ for idx = 1:size(population,2) %cycle on population
                 % remove nucleus regions conncted to image borders
                 regIm2_vol(:,:,p3d) = imclearborder(regIm2_vol(:,:,p3d),8);
     
-                ImDap_vol(:,:,p3d) = ImDap; % volume della fluorescenza ch00
-                ImPcG_vol(:,:,p3d) = ImPcG; % volume della fluorescenza ch01
-                ImLam_vol(:,:,p3d) = ImLam; % volume della fluorescenza ch02
+                ImDap_vol(:,:,p3d) = ImDap; % volume of fluorescence channel ch00
+                ImPcG_vol(:,:,p3d) = ImPcG; % volume of fluorescence channel ch01
+                ImLam_vol(:,:,p3d) = ImLam; % volume of fluorescence channel ch02
     
                 ImSegPcG_vol(:,:,p3d)=ImSegPcG; 
             end
@@ -716,13 +744,11 @@ for idx = 1:size(population,2) %cycle on population
             STC(stack).LumDap = LumDap;
             STC(stack).LumLam = LumLam;
             clear PcG NCL LumPcG LumDap LumLam;
+            fprintf(fileID, '\n');
+            fclose(fileID);
         end%if(~only_segmentation)
-        if (~only_thresh && ~segmentation_done)
-           fprintf(fileID, '\n');
-           fclose(fileID);
-        end
     end%for stack
-    if (~only_thresh && ~segmentation_done)
+    if (print_thresh)
        fclose(fileIDt);
     end
     fprintf('Saving STC ...\n');
