@@ -20,7 +20,6 @@ outCellTot{1} = [0; 0; 0; 0; 0;  0;  0;  0;  0;  0;];
 initpath = ['']; % final / is needed
 outpath = ['2019-03-08_C001Ezh2/']; % final / is needed
 
-titlef = popol;
 legendas = {'C001Ezh2'}; %,...
             %'C002Ezh2',...
             %'C004Ezh2',...
@@ -30,5 +29,5 @@ legendas = {'C001Ezh2'}; %,...
 
 iprint = 1;
 
-f11_ConfrontMultipleCases_2D(popol, popnick_list, outCellTot, initpath, outpath, titlef, legendas, iprint);
+f11_ConfrontMultipleCases_2D(popol, popnick_list, initpath, outpath, legendas, iprint);
 f16_mindistancesPcG2NCL(popol, popnick_list, outCellTot, initpath, outpath, iprint);

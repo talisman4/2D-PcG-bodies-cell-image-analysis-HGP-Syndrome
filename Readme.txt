@@ -24,5 +24,5 @@ launch_script_analysis
 8) In the directory specified in outpath
 In the subdirectory CSV it wil create csv files containing:
 the number of the PcG bodies, and the area of any PcG body and the minimum euclidean distance of any PcG body from the nuclear periphery;
-It will create the graphs related to the above measure;
+It will create the graphs related to the above measures;
 It will create a directory containing all the necessary information to compute the proximity of any PcG body to nuclear periphery.

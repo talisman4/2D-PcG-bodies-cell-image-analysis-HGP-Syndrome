@@ -1,4 +1,32 @@
-function f11_ConfrontMultipleCases_2D(popol, popnick_list, outCellTot, initpath, outpath, titlef, legendas, iprint)
+%%% Begin Main Function
+% This Matlab function is part of the code package released for the
+% article:
+%
+% "A new high-throughput sequencing-based technology reveals early
+% deregulation of bivalent genes in Hutchinson-Gilford Progeria Syndrome"
+% E. Sebestyén1, F. Marullo, F. Lucini, A. Bianchi, C. Petrini, S.  Valsoni,
+% I. Olivieri, L. Antonelli, F. Gregoretti, G. Oliva, F. Ferrari
+%
+% We kindly request you to acknowledge the authors properly
+% (citation or request for permission from the authors) when using this
+% function.
+%
+% 2019 (C) L. Antonelli, F. Gregoretti, G. Oliva
+%
+% f11_ConfrontMultipleCases_2D uses data produced by mainSeg_pcg2D.m to compute:
+% - the number of PcG bodies per nucleus,
+% - the area of any Nucleus,
+% - the area of any PcG, 
+% - the eccemtricity of any Nucleus;
+% create the graphs related to the above measures;
+
+function f11_ConfrontMultipleCases_2D(popol, popnick_list, initpath, outpath, legendas, iprint)
+%popol useful if you have more populations for a given data set
+%popnick_list cell array whose elements are the directoy names containing data produced by mainSeg_pcg2D.m
+%initpath path where all the datasets are stored
+%outpath path where all the analysis results will be stored
+%legendas ell array whose elements are the names used to characterize the populations
+%iprint if 1 print out analysis info
 
 if ~exist(outpath, 'dir')
     mkdir(outpath)
@@ -55,11 +83,13 @@ psize = 4;
 w = 'A':'Z';
 
 %title correction
-for kount=1:size(popnick_list,2) % cycle on population
-   legendas2{kount} = strrep(legendas{kount},'_','\_');
-end
+%for kount=1:size(popnick_list,2) % cycle on population
+%   legendas2{kount} = strrep(legendas{kount},'_','\_');
+%end
 fprintf('Analyzing dataset... %s n. of popol %d\n', popol,size(popnick_list,2));
-for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
+for kount=1:size(popnick_list,2) % cycle on population
+    %title correction
+    legendas2{kount} = strrep(legendas{kount},'_','\_');
     filenameNofPcG = ['NofPcGxNuclei_' popnick_list{kount} '.csv'];
     filenameNucleiAreas = ['NucleiAreas_' popnick_list{kount} '.csv'];
     filenamePcGAreas = ['PcGAreas_' popnick_list{kount} '.csv'];
@@ -71,9 +101,6 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
     load([dare STCmat]);
     FirstSTC = STC;
     clear STC;
-
-    outCell = outCellTot{kount};
-    %if kount ~= 4 (???)
 
     % NUMBER OF POLYCOMBS PER NUCLEUS
     if iprint
@@ -87,39 +114,28 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
         if iprint
            fprintf('    Series %d\n',s);
         end
-        pOutNCL = 1;
-        if outCell(s,1) ~= -1
-           voxelvol = FirstSTC(s).Scale.x * FirstSTC(s).Scale.y * FirstSTC(s).Scale.z;
-           n = 1;
-           while n <= size(FirstSTC(s).NCL,2)
-               if n ~= outCell(s,pOutNCL) 
-                  PcGNum = FirstSTC(s).PcG{n}.NumObjects;
-                  % code part to discriminate PcG with a certain area
-                  %for p=1:FirstSTC(s).PcG{n}.NumObjects
-                  %    parea = size(FirstSTC(s).PcG{n}.PixelIdxList{p},1)*voxelvol;
-                  %    if parea > 0.2
-                  %       PcGNum = PcGNum - 1;
-                  %    end
-                  %end
-                  %TOTNUMPcG = [TOTNUMPcG FirstSTC(s).PcG{n}.NumObjects];
-                  %Number_per_nucleus(end+1) = FirstSTC(s).PcG{n}.NumObjects;
-                  TOTNUMPcG = [TOTNUMPcG PcGNum];
-                  Number_per_nucleus(end+1) = PcGNum;
-                  Group_per_nucleus(end+1,:) = legendas{kount};
-                  if iprint
-                     fprintf(' -- -- Nucleus %d N. of PcG %d\n',n, FirstSTC(s).PcG{n}.NumObjects);
-                  end
-               else
-                  pOutNCL = pOutNCL + 1;
-               end
-               n = n + 1;
-           end%for n
-        else
-           if iprint
-              fprintf(' Discarded Serie %d \n',s);
-           end
-        end%if
-    end%while s
+        voxelvol = FirstSTC(s).Scale.x * FirstSTC(s).Scale.y * FirstSTC(s).Scale.z;
+        n = 1;
+        while n <= size(FirstSTC(s).NCL,2)
+             PcGNum = FirstSTC(s).PcG{n}.NumObjects;
+             % code part to discriminate PcG with a certain area
+             %for p=1:FirstSTC(s).PcG{n}.NumObjects
+             %    parea = size(FirstSTC(s).PcG{n}.PixelIdxList{p},1)*voxelvol;
+             %    if parea > 0.2
+             %       PcGNum = PcGNum - 1;
+             %    end
+             %end
+             %TOTNUMPcG = [TOTNUMPcG FirstSTC(s).PcG{n}.NumObjects];
+             %Number_per_nucleus(end+1) = FirstSTC(s).PcG{n}.NumObjects;
+             TOTNUMPcG = [TOTNUMPcG PcGNum];
+             Number_per_nucleus(end+1) = PcGNum;
+             Group_per_nucleus(end+1,:) = legendas{kount};
+             if iprint
+                fprintf(' -- -- Nucleus %d N. of PcG %d\n',n, FirstSTC(s).PcG{n}.NumObjects);
+             end
+             n = n + 1;
+        end%while n
+    end%for s
     % --- PLOT --- 
     [prob,pdfE] = PrintStatisticsSingle(TOTNUMPcG,karaa(1,kount,:),lw,...
         'percentage of Nuclei','','\bf Number of PcG Bodies per Nucleus',.035,10);
@@ -145,38 +161,27 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
         if iprint
            fprintf('    Series %d\n',s);
         end
-        if outCell(s,1) ~= -1
-           voxelvol = FirstSTC(s).Scale.x * FirstSTC(s).Scale.y * FirstSTC(s).Scale.z;
-           n = 1;
-           while n <= size(FirstSTC(s).NCL,2)
+        voxelvol = FirstSTC(s).Scale.x * FirstSTC(s).Scale.y * FirstSTC(s).Scale.z;
+        n = 1;
+        while n <= size(FirstSTC(s).NCL,2)
 %%%%%%%%%%%%
-            if  n ~= outCell(s,pOutNCL)
-                if FirstSTC(s).PcG{n}.NumObjects > 0 & any(any(any(FirstSTC(s).NCL{n}.Nucleus)))
-                    PcGno = PcGno + FirstSTC(s).PcG{n}.NumObjects;
-                    for p=1:FirstSTC(s).PcG{n}.NumObjects
-                        parea = size(FirstSTC(s).PcG{n}.PixelIdxList{p},1)*voxelvol;
-                        %if parea > 0 && parea <= 0.2
-                        if parea > 0
-                           TOTPcGVol = [TOTPcGVol parea];
-                           fprintf('Pop %d Series %d Nucleo %d  PcGArea %f\n',kount, s, n, parea);  
-                        else 
-                           fprintf('Pop %d Series %d Nucleo %d  PcGArea too big %f\n',kount, s, n, parea);  
-                        end
-                    end%for
-                end%if
-            else
-                %fprintf(' Serie %d index out %d nucleus n. %d \n', s, pOutNCL, outCell(s,pOutNCL));
-                pOutNCL = pOutNCL + 1;
-            end%if
+             if FirstSTC(s).PcG{n}.NumObjects > 0 & any(any(any(FirstSTC(s).NCL{n}.Nucleus)))
+                 PcGno = PcGno + FirstSTC(s).PcG{n}.NumObjects;
+                 for p=1:FirstSTC(s).PcG{n}.NumObjects
+                     parea = size(FirstSTC(s).PcG{n}.PixelIdxList{p},1)*voxelvol;
+                     %if parea > 0 && parea <= 0.2
+                     if parea > 0
+                        TOTPcGVol = [TOTPcGVol parea];
+                        fprintf('Pop %d Series %d Nucleo %d  PcGArea %f\n',kount, s, n, parea);  
+                     else 
+                        fprintf('Pop %d Series %d Nucleo %d  PcGArea too big %f\n',kount, s, n, parea);  
+                     end
+                 end%for
+             end%if
 %%%%%%%%%%%
              n = n + 1;
-           end%for n
-        else
-           if iprint
-              fprintf(' Discarded Serie %d \n',s);
-           end
-        end%if
-    end%while s
+        end%while n
+    end%for s
     % --- PLOT --- 
     [prob,pdfE] = PrintStatisticsSingle(TOTPcGVol,karaa(1,kount,:),lw,...
         'percentage of PcG bodies','','\bf Area of PcG',.035,10);
@@ -202,47 +207,37 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
         if iprint
            fprintf('    Series %d\n',s);
         end
-        if outCell(s,1) ~= -1
-           voxelvol = FirstSTC(s).Scale.x * FirstSTC(s).Scale.y * FirstSTC(s).Scale.z;
-           %for n=1:size(FirstSTC(s).NCL,2)
-           n = 1;
-           while n <= size(FirstSTC(s).NCL,2)
+        voxelvol = FirstSTC(s).Scale.x * FirstSTC(s).Scale.y * FirstSTC(s).Scale.z;
+        %for n=1:size(FirstSTC(s).NCL,2)
+        n = 1;
+        while n <= size(FirstSTC(s).NCL,2)
 %%%%%%%%%%%
-             if  n ~= outCell(s,pOutNCL)
-                NumPcGxNuclei = FirstSTC(s).PcG{n}.NumObjects;
-                if NumPcGxNuclei >= minPcGxNucleus && NumPcGxNuclei <= maxPcGxNucleus
-                   if  (FirstSTC(s).PcG{n}.NumObjects) > maxN
-                       maxN = FirstSTC(s).PcG{n}.NumObjects;
-                   end%if
+             NumPcGxNuclei = FirstSTC(s).PcG{n}.NumObjects;
+             if NumPcGxNuclei >= minPcGxNucleus && NumPcGxNuclei <= maxPcGxNucleus
+                if  (FirstSTC(s).PcG{n}.NumObjects) > maxN
+                    maxN = FirstSTC(s).PcG{n}.NumObjects;
+                end%if
 
-                   % Nucleus Analisys: Area, Area
-                   %[bwl_NCL nCC_NCL] = bwconncomp(NCL{n}.Nucleus); % nCC_NCL should be 1...
-                   CC_NCL  = bwconncomp(FirstSTC(s).NCL{n}.Nucleus); % nCC_NCL should be 1...
-                   nCC_NCL = CC_NCL.NumObjects;
+                % Nucleus Analisys: Area, Area
+                %[bwl_NCL nCC_NCL] = bwconncomp(NCL{n}.Nucleus); % nCC_NCL should be 1...
+                CC_NCL  = bwconncomp(FirstSTC(s).NCL{n}.Nucleus); % nCC_NCL should be 1...
+                nCC_NCL = CC_NCL.NumObjects;
 
-                   if ( nCC_NCL == 1 ) % nucleo intero
-                      TOTNCLVol = [TOTNCLVol size(CC_NCL.PixelIdxList{1},1)*voxelvol];
-                   else               % nucleo scomposto
-                      CC_NCLTotVol = 0.;
-                      for i=1:nCC_NCL
-                          CC_NCLTotVol = CC_NCLTotVol + size(CC_NCL.PixelIdxList{i},1)*voxelvol;
-                      end
-                      TOTNCLVol = [TOTNCLVol CC_NCLTotVol];
-                   end%if nCC_NCL
-                   %fprintf('Pop %d Series %d Nucleo %d Objetcts %d Area %f\n',toti, s, n, nCC_NCL, TOTNCLVol(n));
-                end%if NumPcGxNuclei
-             else
-                pOutNCL = pOutNCL + 1;
-             end%if
+                if ( nCC_NCL == 1 ) % nucleo intero
+                   TOTNCLVol = [TOTNCLVol size(CC_NCL.PixelIdxList{1},1)*voxelvol];
+                else               % nucleo scomposto
+                   CC_NCLTotVol = 0.;
+                   for i=1:nCC_NCL
+                       CC_NCLTotVol = CC_NCLTotVol + size(CC_NCL.PixelIdxList{i},1)*voxelvol;
+                   end
+                   TOTNCLVol = [TOTNCLVol CC_NCLTotVol];
+                end%if nCC_NCL
+                %fprintf('Pop %d Series %d Nucleo %d Objetcts %d Area %f\n',toti, s, n, nCC_NCL, TOTNCLVol(n));
+             end%if NumPcGxNuclei
 %%%%%%%%%%%%
              n = n + 1;
-           end%for n
-        else
-           if iprint
-              fprintf(' Discarded Serie %d \n',s);
-           end
-        end%if
-    end%while s
+        end%while n
+    end%for s
     % --- PLOT --- 
     [prob,pdfE] = PrintStatisticsSingle(TOTNCLVol,karaa(1,kount,:),lw,...
         'percentage of Nuclei','','\bf Area of Nuclei',.035,10);
@@ -268,36 +263,26 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
         if iprint
            fprintf('    Series %d\n',s);
         end
-        if outCell(s,1) ~= -1
-           %for n=1:size(FirstSTC(s).NCL,2)
-           n = 1;
-           while n <= size(FirstSTC(s).NCL,2)
+        %for n=1:size(FirstSTC(s).NCL,2)
+        n = 1;
+        while n <= size(FirstSTC(s).NCL,2)
 %%%%%%%%%%%
-             if  n ~= outCell(s,pOutNCL)
-                   % Nucleus Analisys: Area, Area
-                   %[bwl_NCL nCC_NCL] = bwconncomp(NCL{n}.Nucleus); % nCC_NCL should be 1...
-                   CC_NCL  = bwconncomp(FirstSTC(s).NCL{n}.Nucleus); % nCC_NCL should be 1...
-                   nCC_NCL = CC_NCL.NumObjects;
+             % Nucleus Analisys: Area, Area
+             %[bwl_NCL nCC_NCL] = bwconncomp(NCL{n}.Nucleus); % nCC_NCL should be 1...
+             CC_NCL  = bwconncomp(FirstSTC(s).NCL{n}.Nucleus); % nCC_NCL should be 1...
+             nCC_NCL = CC_NCL.NumObjects;
 
-                   if ( nCC_NCL == 1 ) % nucleo intero
-                      TOTNCLCircularity = [TOTNCLCircularity FirstSTC(s).NCL{n}.eccentricity];
-                      %fprintf('Pop %d Series %d Nucleo %d  metric %f\n',kount, s, n,  FirstSTC(s).NCL{n}.eccentricity);  
-                   else               % nucleo scomposto
-                      fprintf('Pop %d Series %d Nucleo %d more than 1 Objetct %d\n',kount, s, n, nCC_NCL);  
-                   end%if nCC_NCL
-                   %fprintf('Pop %d Series %d Nucleo %d Objetcts %d Area %f\n',kount, s, n, nCC_NCL, TOTNCLVol(n));
-             else
-                pOutNCL = pOutNCL + 1;
-             end%if
+             if ( nCC_NCL == 1 ) % nucleo intero
+                TOTNCLCircularity = [TOTNCLCircularity FirstSTC(s).NCL{n}.eccentricity];
+                %fprintf('Pop %d Series %d Nucleo %d  metric %f\n',kount, s, n,  FirstSTC(s).NCL{n}.eccentricity);  
+             else               % nucleo scomposto
+                fprintf('Pop %d Series %d Nucleo %d more than 1 Objetct %d\n',kount, s, n, nCC_NCL);  
+             end%if nCC_NCL
+             %fprintf('Pop %d Series %d Nucleo %d Objetcts %d Area %f\n',kount, s, n, nCC_NCL, TOTNCLVol(n));
 %%%%%%%%%%%%
              n = n + 1;
-           end%for n
-        else
-           if iprint
-              fprintf(' Discarded Serie %d \n',s);
-           end
-        end%if
-    end%while s
+        end%while n
+    end%for s
     % --- PLOT --- 
     [prob,pdfE] = PrintStatisticsSingle(TOTNCLCircularity, karaa(1,kount,:),lw,...
         'percentage of Nuclei','','\bf Circularity of Nuclei',.035,10);
@@ -310,7 +295,7 @@ for kount=1:size(popnick_list,2) % ciclo sulle popolazioni
     NucleiCircularity_hist{kount} = prob;
     NucleiCircularity_pdf{kount} = pdfE;
     NucleiCircularity_realdata{kount} = TOTNCLCircularity;
-clear outCell FirstSTC;
+clear FirstSTC;
 dlmwrite([dirCSV filenameCircularity],NucleiCircularity_realdata{kount},'precision','%.6f','-append')
 end%for kount
 %pause
@@ -332,8 +317,8 @@ xgrid = linspace(0,90,10); grid('on');
 axes('Position',[0 0 1 .99],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath titlef 'Hists_PcGNumber.jpg']);
-copyfile([outpath titlef 'Hists_PcGNumber.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [outpath popol 'Hists_PcGNumber.jpg']);
+copyfile([outpath popol 'Hists_PcGNumber.jpg'], dirgraphs);
 
 figure(10), clf(10);
 xgrid = linspace(min(TOTNCLVol),max(TOTNCLVol),10); grid('on');
@@ -348,8 +333,8 @@ xgrid = linspace(0,90,10); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath titlef 'Hists_NucleiAreas.jpg']);
-copyfile([outpath titlef 'Hists_NucleiAreas.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [outpath popol 'Hists_NucleiAreas.jpg']);
+copyfile([outpath popol 'Hists_NucleiAreas.jpg'], dirgraphs);
 
 figure(11), clf(11);
 %xgrid = linspace(min(TOTPcGVol),max(TOTPcGVol),10); grid('on');
@@ -368,8 +353,8 @@ xgrid = linspace(0,90,10); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath titlef 'Hists_PcGAreas.jpg']);
-copyfile([outpath titlef 'Hists_PcGAreas.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [outpath popol 'Hists_PcGAreas.jpg']);
+copyfile([outpath popol 'Hists_PcGAreas.jpg'], dirgraphs);
 
 figure(14), clf(14);
 group = []; tha_data = [];
@@ -390,8 +375,8 @@ title('\bf \fontname{SansSerif} Number of PcG Bodies per Nucleus '); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath titlef 'Boxplot_PcGNumber.jpg']);
-copyfile([outpath titlef 'Boxplot_PcGNumber.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [outpath popol 'Boxplot_PcGNumber.jpg']);
+copyfile([outpath popol 'Boxplot_PcGNumber.jpg'], dirgraphs);
 
 figure(15), clf(15);
 group = []; tha_data = [];
@@ -412,8 +397,8 @@ title('\bf \fontname{SansSerif} Areas of Nuclei '); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath titlef 'Boxplot_NucleiAreas.jpg']);
-copyfile([outpath titlef 'Boxplot_NucleiAreas.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [outpath popol 'Boxplot_NucleiAreas.jpg']);
+copyfile([outpath popol 'Boxplot_NucleiAreas.jpg'], dirgraphs);
 
 figure(16), clf(16);
 group = []; tha_data = [];
@@ -434,8 +419,8 @@ title('\bf \fontname{SansSerif} Areas of PcG '); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]); 
-print(gcf, '-djpeg', '-r100', [outpath titlef 'Boxplot_PcGAreas.jpg']);
-copyfile([outpath titlef 'Boxplot_PcGAreas.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [outpath popol 'Boxplot_PcGAreas.jpg']);
+copyfile([outpath popol 'Boxplot_PcGAreas.jpg'], dirgraphs);
 
 figure(17), clf(17);
 group = []; tha_data = [];
@@ -456,8 +441,8 @@ title('\bf \fontname{SansSerif} Circularity of Nuclei '); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath titlef 'Boxplot_NucleiCircularity.jpg']);
-copyfile([outpath titlef 'Boxplot_NucleiCircularity.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [outpath popol 'Boxplot_NucleiCircularity.jpg']);
+copyfile([outpath popol 'Boxplot_NucleiCircularity.jpg'], dirgraphs);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
