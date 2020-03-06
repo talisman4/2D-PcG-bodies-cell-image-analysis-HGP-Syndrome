@@ -1,4 +1,3 @@
-%%% Begin Main Function
 % This Matlab function is part of the code package released for the
 % article:
 %
@@ -18,7 +17,8 @@
 % - the area of any Nucleus,
 % - the area of any PcG, 
 % - the eccemtricity of any Nucleus;
-% create the graphs related to the above measures;
+% create in the directory CSV csv files containing the above measures;
+% create the graphs related to the above measures.
 
 function f11_ConfrontMultipleCases_2D(popol, popnick_list, initpath, outpath, legendas, iprint)
 %popol useful if you have more populations for a given data set
