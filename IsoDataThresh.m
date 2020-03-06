@@ -1,8 +1,22 @@
 %% -------------------------------------------------------------------------
-%   Isodata Thresholding algorithm: Modified formulation defined using as
-%   the initial guess for image thresholding the mean of the average 
-%   of image intensity in the foreground and background region 
-%   computed by Chan - Vese Model 
+% This Matlab function is part of the code package released for the
+% article:
+%
+% "A new high-throughput sequencing-based technology reveals early
+% deregulation of bivalent genes in Hutchinson-Gilford Progeria Syndrome"
+% E. Sebestyén1, F. Marullo, F. Lucini, A. Bianchi, C. Petrini, S.  Valsoni,
+% I. Olivieri, L. Antonelli, F. Gregoretti, G. Oliva, F. Ferrari
+%
+% We kindly request you to acknowledge the authors properly
+% (citation or request for permission from the authors) when using this
+% function.
+%
+% 2019 (C) L. Antonelli, F. Gregoretti, G. Oliva
+%
+% Isodata Thresholding algorithm: Modified formulation defined using as
+% the initial guess for image thresholding the mean of the average 
+% of image intensity in the foreground and background region 
+% computed by Chan - Vese Model 
 %% -------------------------------------------------------------------------
 
 function [thresh] = IsoDataThresh(frame_prime, iNy, iNx, C1, C2, thresh)
