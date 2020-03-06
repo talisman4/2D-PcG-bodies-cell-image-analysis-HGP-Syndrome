@@ -31,7 +31,7 @@ if ~exist(outpath, 'dir')
     mkdir(outpath)
 end
 
-dirCSV = [outpath '/CSV/'];
+dirCSV = [outpath popol '/CSV/'];
 if ~exist(dirCSV, 'dir')
     mkdir(dirCSV)
 end
@@ -39,7 +39,7 @@ end
 fprintf('Analyzing ... %s\n', popol);
 for kount=1:size(popnick_list,2) % cycle on populations
     stack_format = popnick_list{kount}
-    dirMinDist = [outpath '/' popol '/' stack_format '_MinDistPNG'];
+    dirMinDist = [outpath '/' popol '/' 'MinDistPNG'];
     mkdir(dirMinDist);
     filenameMindistPcG2NCL = [dirCSV '/' 'MindistancesPcG2NCL_' popnick_list{kount} '.csv'];
     fileIDmindist = fopen(filenameMindistPcG2NCL,'w');

@@ -33,12 +33,12 @@ if ~exist(outpath, 'dir')
 end
 
 % path where to save heatmaps
-dirgraphs = [outpath '/grafici'];
+dirgraphs = [outpath popol '/grafici/'];
 if ~exist(dirgraphs, 'dir')
     mkdir(dirgraphs)
 end
 
-dirCSV = [outpath '/CSV/'];
+dirCSV = [outpath popol '/CSV/'];
 if ~exist(dirCSV, 'dir')
     mkdir(dirCSV)
 end
@@ -317,8 +317,7 @@ xgrid = linspace(0,90,10); grid('on');
 axes('Position',[0 0 1 .99],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath popol 'Hists_PcGNumber.jpg']);
-copyfile([outpath popol 'Hists_PcGNumber.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [dirgraphs 'Hists_PcGNumber.jpg']);
 
 figure(10), clf(10);
 xgrid = linspace(min(TOTNCLVol),max(TOTNCLVol),10); grid('on');
@@ -333,8 +332,7 @@ xgrid = linspace(0,90,10); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath popol 'Hists_NucleiAreas.jpg']);
-copyfile([outpath popol 'Hists_NucleiAreas.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [dirgraphs 'Hists_NucleiAreas.jpg']);
 
 figure(11), clf(11);
 %xgrid = linspace(min(TOTPcGVol),max(TOTPcGVol),10); grid('on');
@@ -353,8 +351,7 @@ xgrid = linspace(0,90,10); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath popol 'Hists_PcGAreas.jpg']);
-copyfile([outpath popol 'Hists_PcGAreas.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [dirgraphs 'Hists_PcGAreas.jpg']);
 
 figure(14), clf(14);
 group = []; tha_data = [];
@@ -375,8 +372,7 @@ title('\bf \fontname{SansSerif} Number of PcG Bodies per Nucleus '); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath popol 'Boxplot_PcGNumber.jpg']);
-copyfile([outpath popol 'Boxplot_PcGNumber.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [dirgraphs 'Boxplot_PcGNumber.jpg']);
 
 figure(15), clf(15);
 group = []; tha_data = [];
@@ -397,8 +393,7 @@ title('\bf \fontname{SansSerif} Areas of Nuclei '); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath popol 'Boxplot_NucleiAreas.jpg']);
-copyfile([outpath popol 'Boxplot_NucleiAreas.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [dirgraphs 'Boxplot_NucleiAreas.jpg']);
 
 figure(16), clf(16);
 group = []; tha_data = [];
@@ -419,8 +414,7 @@ title('\bf \fontname{SansSerif} Areas of PcG '); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]); 
-print(gcf, '-djpeg', '-r100', [outpath popol 'Boxplot_PcGAreas.jpg']);
-copyfile([outpath popol 'Boxplot_PcGAreas.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [dirgraphs 'Boxplot_PcGAreas.jpg']);
 
 figure(17), clf(17);
 group = []; tha_data = [];
@@ -441,8 +435,7 @@ title('\bf \fontname{SansSerif} Circularity of Nuclei '); grid('on');
 axes('Position',[0 0 1 .99],'Xlim',[0 1],'Ylim',[0 1],'Box','off',...
     'Visible','off','Units','normalized','clipping','off');
 set(gcf,'PaperPosition',[0 0 5.5 4]); set(gcf,'PaperSize',[psize psize]);
-print(gcf, '-djpeg', '-r100', [outpath popol 'Boxplot_NucleiCircularity.jpg']);
-copyfile([outpath popol 'Boxplot_NucleiCircularity.jpg'], dirgraphs);
+print(gcf, '-djpeg', '-r100', [dirgraphs 'Boxplot_NucleiCircularity.jpg']);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
