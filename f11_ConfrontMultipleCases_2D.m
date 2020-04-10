@@ -1,16 +1,25 @@
-% This Matlab function is part of the code package released for the
-% article:
+% This Matlab function is part of the code package released for the article:
 %
-% "A new high-throughput sequencing-based technology reveals early
-% deregulation of bivalent genes in Hutchinson-Gilford Progeria Syndrome"
+% "A new high-throughput sequencing-based technology reveals early alteration
+% of heterochromatin and deregulation of bivalent genes in Hutchinson-Gilford
+% Progeria Syndrome"
 % E. Sebestyén1, F. Marullo, F. Lucini, A. Bianchi, C. Petrini, S.  Valsoni,
-% I. Olivieri, L. Antonelli, F. Gregoretti, G. Oliva, F. Ferrari
+% I. Olivieri, L. Antonelli, F. Gregoretti, G. Oliva, F. Ferrari and C. Lanzuolo
 %
-% We kindly request you to acknowledge the authors properly
-% (citation or request for permission from the authors) when using this
-% function.
+% We kindly request you to acknowledge the authors properly (citation
+% or request for permission from the authors) when using this function.
 %
 % 2019 (C) L. Antonelli, F. Gregoretti, G. Oliva
+%
+% The package is free software; you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation; either version 2 of the License, or (at your
+% option) any later version.
+%
+% The package is distributed in the hope that it will be useful, but
+% WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+% or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+% for more details.
 %
 % f11_ConfrontMultipleCases_2D uses data produced by mainSeg_pcg2D.m to compute:
 % - the number of PcG bodies per nucleus,

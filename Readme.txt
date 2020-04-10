@@ -1,13 +1,16 @@
 The algorithm has been implemented and tested with MATLAB versions 8.4 (2014a) and 9.1 (2016b) on Linux.
+Software Requirements and Installation
 1) For the segmentation of cell nuclei, we use an algorithm that implements one of the most efficient minimization methods for a non convex segmentation problem.
 To this purpose we use a C code to be turned in MEX file so that it can be called directly from MATLAB:
 Download the files ac_mex.c and utils.h from https://github.com/talisman4/2D-PcG-bodies-cell-image-analysis-HGP-Syndrome to your current working directory.
 Alternatively you can download the entire ZIP archive so you'll have already all the necessary files in the working directory.
 Start MATLAB and run
 mex ac_mex.c
+Data
 2) 8-bit 2D fluorescence cell image acquired counterstaining nuclei, lamin and PcG bodies.
 Example images, used to test the code, have pixel size of 0.24 micron in x and y.
 You can download the example images from the repository: https://github.com/talisman4/2D-PcG-bodies-cell-image-analysis-HGP-Syndrome
+Demo
 3) Create a Matlab script file to set all the necessary input parameter to run the main segmentation program.
 You can find an example script: launch_script.m
 4) Run
