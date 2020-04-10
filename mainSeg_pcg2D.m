@@ -4,7 +4,7 @@
 % "A new high-throughput sequencing-based technology reveals early alteration
 % of heterochromatin and deregulation of bivalent genes in Hutchinson-Gilford
 % Progeria Syndrome"
-% E. Sebestyén1, F. Marullo, F. Lucini, A. Bianchi, C. Petrini, S.  Valsoni,
+% E. Sebestyén, F. Marullo, F. Lucini, C. Petrini, A. Bianchi, S. Valsoni,
 % I. Olivieri, L. Antonelli, F. Gregoretti, G. Oliva, F. Ferrari and C. Lanzuolo
 %
 % We kindly request you to acknowledge the authors properly (citation
