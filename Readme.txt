@@ -20,6 +20,7 @@ In the subdirectory CSV it will create a csv file with the number of nuclei for 
 In the subdirectories Series* it will create the trinary segmented (background, nuclei, PcGs) images for each input image;
 In the subdirectory SeparatedNuclei it will create a segmented image for each nucleus;
 In the subdirectory STCmat it will create a Matlab file with relevant information to complete the analysis.
+Runtime of the main segmentation program on an Intel I7, 4.0 GHz, with 16 GB RAM was 30 seconds.
 6) Create a Matlab script file to set all the necessary input parameters to run f11 and f16 analysis functions. 
 You can find an example script: launch_script_analysis.m
 7) Run
@@ -28,3 +29,4 @@ launch_script_analysis
 In the subdirectory CSV it will create csv files containing:
 the number of the PcG bodies, and the area of any PcG body and all the necessary information to compute the proximity of any PcG body to nuclear periphery;
 It will create the graphs related to the above measures.
+Runtime of the f11 and f16 analysis functions on an Intel I7, 4.0 GHz, with 16 GB RAM was 91 seconds.
