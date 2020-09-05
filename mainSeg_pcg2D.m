@@ -1,9 +1,8 @@
 %%% Begin Main Function
 % This Matlab function is part of the code package released for the article:
 %
-% "A new high-throughput sequencing-based technology reveals early alteration
-% of heterochromatin and deregulation of bivalent genes in Hutchinson-Gilford
-% Progeria Syndrome"
+% "SAMMY-seq reveals early alteration of heterochromatin and deregulation of
+% bivalent genes in Hutchinson-Gilford Progeria Syndrome"
 % E. Sebestyén, F. Marullo, F. Lucini, C. Petrini, A. Bianchi, S. Valsoni,
 % I. Olivieri, L. Antonelli, F. Gregoretti, G. Oliva, F. Ferrari and C. Lanzuolo
 %
