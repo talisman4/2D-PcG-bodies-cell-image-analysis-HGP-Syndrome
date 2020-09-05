@@ -1,4 +1,3 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4016157.svg)](https://doi.org/10.5281/zenodo.4016157)
 The algorithm has been implemented and tested with MATLAB versions 8.4 (2014a) and 9.1 (2016b) on Linux.
 Software Requirements and Installation
 1) For the segmentation of cell nuclei, we use an algorithm that implements one of the most efficient minimization methods for a non convex segmentation problem.
