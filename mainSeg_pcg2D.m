@@ -418,7 +418,6 @@ for idx = 1:size(population,2) %cycle on population
     % Applying ISODATA on PcG image
     
                 % excluding background for PcG detection
-                imPrimePcG2 = imPrimePcG; 
                 imPrimePcG(regIm2 == 0) = -255; 
     
                 if (thresh == -255)
@@ -721,8 +720,7 @@ for idx = 1:size(population,2) %cycle on population
                 %PcG{n} = bwconncomp(NCL{n}.PcG,4);
                 fprintf('Nucleo n. %d PcG n. %d\n', n, PcG{n}.NumObjects);
                 proimage = zeros(size(NCL{n}.Nucleus));
-                temp = bwconncomp(NCL{n}.Nucleus,6); % 6, 18, 26
-                proimage(temp.PixelIdxList{1}) = 100;
+		proimage(NCL{n}.Nucleus) = 100;
                 if PcG{n}.NumObjects > 0
                     karaa = double(label2rgb(1:PcG{n}.NumObjects,'jet',[0,0,0],'shuffle'))./255;
                     for k=1:PcG{n}.NumObjects
