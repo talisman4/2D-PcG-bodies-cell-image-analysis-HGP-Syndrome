@@ -45,7 +45,7 @@ function mainSeg_pcg2D(population,segmentation_done,only_segmentation, ...
 % .channels number of the channels of each image (at least 2: dapi and pcg)
 % .thresh -255 the threshold used for the thresholding operation has to be computed by ISODATA,
 %         otherwise uses a fixed threshold
-% optiona fiels is:
+% optional field is:
 % .chext vector containing the channel numbers corresponding to dapi/pcd/lamin respectively 
 % segmentation_done if 1 segmentation already performed
 % only_segmentation if 1 performs only segmentation
