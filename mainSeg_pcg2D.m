@@ -31,10 +31,15 @@
 %%clear all;
 
 
-function mainSeg_pcg2D(population,segmentation_done,only_segmentation,dirimages,stack_format_list,print_thresh, ...
-                       xyscale, dir_save, flag_seg, mu, lambda)
+function mainSeg_pcg2D(population,segmentation_done,only_segmentation, ...
+                       dirimages,print_thresh,dir_save,flag_seg,mu,lambda)
 % population data input structure: for each population(i), required fields are:
+% .stack_basename is the reference string name of the population i
+% where names for corresponding images have to be of the format 'stack_basename''stack_format'
+% (e.g. stack_format, reflecting filenames, might be '%03d_z%02d_ch%02d.tif' where %03d=serie's number, %02d=image plane number, %02d=channel number)
 % .name population string name used for the data output directory
+% .xyscale scale x-axis valus (=scale y-axis value)
+% can be retrived from Voxel parameter value of DimensionDescription label (for DimID=X or DimID=Y) in the xml image metadata file
 % .series vector of string numbers, each corresponding to a serie's number of input images
 % .aplane vector of string numbers, each corresponding to a plane of the serie's stack to be analyzed
 % .channels number of the channels of each image (at least 2: dapi and pcg)
@@ -43,12 +48,7 @@ function mainSeg_pcg2D(population,segmentation_done,only_segmentation,dirimages,
 % segmentation_done if 1 segmentation already performed
 % only_segmentation if 1 performs only segmentation
 % dirimages relative path where input images are stored
-% stack_format_list stack_format_list{i} is the reference string name of the population i
-% where names for corresponding images have to be of the format stack_format_list{i}%03d_z%02d_ch%02d.tif
-% (%03d=serie's number, %02d=image plane number, %02d=channel number)
 % print_thresh if 1 prints the threshold given in input
-% xyscale scale x-axis valus (=scale y-axis value)
-% can be retrived from Voxel parameter value of DimensionDescription label (for DimID=X or DimID=Y) in the xml image metadata file
 % dir_save if 1 store output data in the same dir as population data files
 % flag_seg nuclei segmentation strategy
 % mu curvature weight for active contour function
@@ -98,10 +98,6 @@ if ~exist('print_thresh','var')
    print_thresh = 0;
 end
 
-if ~exist('xyscale','var')
-   xyscale = 0.12;
-end
-
 if ~exist('lambda','var')
    lambda = 0.0001;
 end
@@ -124,8 +120,6 @@ redext = 2;
 sc = 255.;
 
 Scale = struct();
-Scale.x = xyscale;
-Scale.y = xyscale;
 Scale.z = 1;
 
 create_image = 1;
@@ -153,7 +147,10 @@ for idx = 1:size(population,2) %cycle on population
           mkdir(dirpop)
         end
     end
-    stack_format = stack_format_list{idx};
+    Scale.x = population(idx).xyscale;
+    Scale.y = population(idx).xyscale;
+    stack_basename = population(idx).stack_basename;
+    stack_format = population(idx).stack_format;
 
     fprintf('----------------------------------------------------------\n');
 
@@ -187,8 +184,9 @@ for idx = 1:size(population,2) %cycle on population
     end
     for stack = 1:size(population(idx).series,2) % cycle on Series
         id_stack  = population(idx).series(stack);
-        filenameformat = [stack_format '%03d_z%02d_ch%02d.tif']; % series,plane,channel
-        filenameformatout = [stack_format '%03d_z%02d'];       % series,plane
+        % filenameformat = [stack_basename '%03d_z%02d_ch%02d.tif']; % series,plane,channel
+        filenameformatout = [stack_basename '%03d_z%02d'];       % series,plane
+        filenameformat = [stack_basename stack_format]; % series,plane,channel
     
         fprintf('Population -- %s N. of Stacks %d\n', population(idx).name, size(population(idx).series,2));
 

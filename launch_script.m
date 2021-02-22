@@ -1,7 +1,9 @@
+tic
 dirimages = 'images/C001_Ezh2488LamAC647/';
-stack_format_list = {'C001Ezh2_Series'};
-xyscale = 0.241;
 population(1).name = '2019-03-08_C001Ezh2'; % output directory
+population(1).xyscale = 0.241;
+population(1).stack_basename = 'C001Ezh2_Series';
+population(1).stack_format = '%03d_z%02d_ch%02d.tif';
 population(1).series =       [7 9 11 13 15 17 19 21 23 25];
 population(1).aplane =       [0 0  0  0  0  0  0  0  0  0];
 population(1).channels = 3;
@@ -14,5 +16,6 @@ flag_seg = 2;
 mu = 1;
 lambda = 0.0001;
 
-mainSeg_pcg2D(population,segmentation_done,only_segmentation,dirimages,stack_format_list,print_thresh,...
-              xyscale,dir_save,flag_seg,mu,lambda);
+mainSeg_pcg2D(population,segmentation_done,only_segmentation, ...
+              dirimages,print_thresh,dir_save,flag_seg,mu,lambda);
+toc
