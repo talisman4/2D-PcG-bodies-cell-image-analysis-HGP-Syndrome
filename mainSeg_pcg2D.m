@@ -45,6 +45,8 @@ function mainSeg_pcg2D(population,segmentation_done,only_segmentation, ...
 % .channels number of the channels of each image (at least 2: dapi and pcg)
 % .thresh -255 the threshold used for the thresholding operation has to be computed by ISODATA,
 %         otherwise uses a fixed threshold
+% optiona fiels is:
+% .chext vector containing the channel numbers corresponding to dapi/pcd/lamin respectively 
 % segmentation_done if 1 segmentation already performed
 % only_segmentation if 1 performs only segmentation
 % dirimages relative path where input images are stored
@@ -112,9 +114,9 @@ if ~exist('population','var')
 end
 
 % integers used to indicate channels in file names
-dapiext = 0;
-greenext = 1;
-redext = 2;
+dapiext_ = 0;
+greenext_ = 1;
+redext_ = 2;
 
 % scale factor
 sc = 255.;
@@ -151,6 +153,24 @@ for idx = 1:size(population,2) %cycle on population
     Scale.y = population(idx).xyscale;
     stack_basename = population(idx).stack_basename;
     stack_format = population(idx).stack_format;
+    if isfield(population(idx),'chext') && ~isempty(population(idx).chext)
+      if population(idx).channels==3
+        fprintf('channel numbers provided dap=%d pcg=%d lam=%d\n', ...
+                population(idx).chext(1), population(idx).chext(2), ...
+                population(idx).chext(3));
+      else
+        fprintf('channel numbers provided dap=%d pcg=%d\n', ...
+                population(idx).chext(1), population(idx).chext(2));
+      end
+      dapiext = population(idx).chext(1);
+      greenext = population(idx).chext(2);
+      redext = population(idx).chext(3);
+    else
+      fprintf('default channel numbers\n');
+      dapiext = dapiext_;
+      greenext = greenext_;
+      redext = redext_;
+    end
 
     fprintf('----------------------------------------------------------\n');
 

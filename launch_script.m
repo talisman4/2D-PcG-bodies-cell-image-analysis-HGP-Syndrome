@@ -8,6 +8,7 @@ population(1).series =       [7 9 11 13 15 17 19 21 23 25];
 population(1).aplane =       [0 0  0  0  0  0  0  0  0  0];
 population(1).channels = 3;
 population(1).thresh = -255;
+population(1).chext = [0 1 2];
 segmentation_done = 0; % 1 if segmentation already performed
 only_segmentation = 0; % 1 to perform only segmentation
 print_thresh = 1;
