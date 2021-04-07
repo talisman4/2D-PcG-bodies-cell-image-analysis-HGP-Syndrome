@@ -46,7 +46,7 @@ function mainSeg_pcg2D(population,segmentation_done,only_segmentation, ...
 % .thresh -255 the threshold used for the thresholding operation has to be computed by ISODATA,
 %         otherwise uses a fixed threshold
 % optional field is:
-% .chext vector containing the channel numbers corresponding to dapi/pcd/lamin respectively 
+% .chext vector containing the channel numbers corresponding to dapi/pcg/lamin respectively 
 % segmentation_done if 1 segmentation already performed
 % only_segmentation if 1 performs only segmentation
 % dirimages relative path where input images are stored
@@ -711,7 +711,7 @@ for idx = 1:size(population,2) %cycle on population
                     end
                     text(tj(floor(size(tj,1))),ti(floor(size(ti,1))),int2str(h),'FontWeight','bold','Color','g','FontSize',13);
                 end%for
-                filenameformatnumbers = strcat(stack_format, sprintf('%03d',id_stack));
+                filenameformatnumbers = strcat(stack_basename, sprintf('%03d',id_stack));
                 print(fig_numbers, '-dpng', '-r200', [ dirSeparatedNuclei '/' filenameformatnumbers '_numbers.png']);
                 clear ti tj;
                 close(fig_numbers);
