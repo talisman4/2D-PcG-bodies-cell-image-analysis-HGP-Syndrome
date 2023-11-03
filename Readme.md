@@ -1,6 +1,7 @@
 The repository hosts the code for the analysis of images in the paper "SAMMY-seq reveals early alteration of heterochromatin and deregulation of bivalent genes in Hutchinson-Gilford Progeria Syndrome", published on [Nature Communications](https://www.nature.com/articles/s41467-020-20048-9).
 
 To cite this repository, please click the badge below:
+
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4016157.svg)](https://doi.org/10.5281/zenodo.4016157)
 
 The algorithm has been implemented and tested with MATLAB versions 8.4 (2014a) and 9.1 (2016b) on Linux.
